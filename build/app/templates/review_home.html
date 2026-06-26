@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}review — flashcards{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>review</h1>
+</div>
+
+{% if tag_due_counts %}
+<div class="review-tag-grid">
+  {% for tag, counts in tag_due_counts.items() %}
+  <a href="/review/session?tag={{ tag }}" class="review-tag-card {% if counts.due == 0 %}no-due{% endif %}">
+    <div class="tag-name">{{ tag }}</div>
+    <div class="tag-counts">
+      <span class="due-count {% if counts.due > 0 %}has-due{% endif %}">{{ counts.due }} due</span>
+      <span class="total-count muted">/ {{ counts.total }} total</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>no tags yet. <a href="/cards/new">create some cards first →</a></p>
+</div>
+{% endif %}
+{% endblock %}

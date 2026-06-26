@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}flashcards — all cards{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>all cards <span class="muted">{{ total }}</span></h1>
+  </div>
+  <a href="/cards/new" class="btn">+ new card</a>
+</div>
+
+{% if tags %}
+<div class="tag-filter">
+  <span class="muted">filter:</span>
+  <a href="/" class="tag {% if not request.query_params.get('tag') %}active{% endif %}">all</a>
+  {% for tag in tags %}
+  <a href="/?tag={{ tag }}" class="tag {% if request.query_params.get('tag') == tag %}active{% endif %}">{{ tag }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card-list">
+  {% set filter_tag = request.query_params.get('tag') %}
+  {% for card in cards %}
+    {% if not filter_tag or filter_tag in card.tags %}
+    <div class="card-row">
+      <div class="card-row-content">
+        <a href="/cards/{{ card.slug }}" class="card-question">{{ card.question[:120] }}{% if card.question|length > 120 %}…{% endif %}</a>
+        <div class="card-meta">
+          {% for tag in card.tags %}
+          <span class="tag small">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card-actions">
+        <a href="/cards/{{ card.slug }}/edit" class="btn-ghost small">edit</a>
+        <form action="/cards/{{ card.slug }}/delete" method="post" data-confirm>
+          <button type="submit" class="btn-ghost small danger">del</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <p>no cards yet. <a href="/cards/new">create your first card →</a></p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

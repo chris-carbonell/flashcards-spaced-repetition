@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}done — flashcards{% endblock %}
+
+{% block content %}
+<div class="done-screen">
+  <div class="done-icon">✓</div>
+  <h1>all caught up</h1>
+  <p class="muted">no cards due in <strong>{{ tag }}</strong></p>
+  <div class="done-actions">
+    <a href="/review" class="btn">← back to tags</a>
+    <a href="/" class="btn-ghost">all cards</a>
+  </div>
+</div>
+{% endblock %}

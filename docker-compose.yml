@@ -1,0 +1,36 @@
+# Overview
+# * set up local services for development and testing
+
+services:
+  app:
+    build: build
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      GIT_SSH_KEY_PATH: /secrets/ssh/id_rsa
+    volumes:
+      - repo_data:/data
+      - ${SSH_KEY_PATH:-~/.ssh/flashcards_deploy}:/secrets/ssh/id_rsa:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: flashcards
+      POSTGRES_PASSWORD: flashcards
+      POSTGRES_DB: flashcards
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flashcards"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  repo_data:
+  pg_data:

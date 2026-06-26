@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ "edit" if card else "new card" }} — flashcards{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ "edit card" if card else "new card" }}</h1>
+  {% if card %}
+  <a href="/cards/{{ card.slug }}" class="btn-ghost">cancel</a>
+  {% else %}
+  <a href="/" class="btn-ghost">cancel</a>
+  {% endif %}
+</div>
+
+<form
+  action="{{ '/cards/' + card.slug + '/edit' if card else '/cards/new' }}"
+  method="post"
+  class="card-form"
+>
+  <div class="form-group">
+    <label for="question">question <span class="required">*</span></label>
+    <textarea
+      id="question"
+      name="question"
+      rows="5"
+      placeholder="supports markdown"
+      required
+    >{{ card.question if card else "" }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="answer">answer <span class="required">*</span></label>
+    <textarea
+      id="answer"
+      name="answer"
+      rows="8"
+      placeholder="supports markdown"
+      required
+    >{{ card.answer if card else "" }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="tags">tags <span class="required">*</span> <span class="muted">(comma-separated)</span></label>
+    <input
+      id="tags"
+      name="tags"
+      type="text"
+      placeholder="python, algorithms, data-structures"
+      value="{{ card.tags | join(', ') if card else '' }}"
+      list="existing-tags"
+      required
+    >
+    <datalist id="existing-tags">
+      {% for tag in all_tags %}
+      <option value="{{ tag }}">
+      {% endfor %}
+    </datalist>
+    {% if all_tags %}
+    <div class="tag-suggestions">
+      {% for tag in all_tags %}
+      <button type="button" class="tag small" onclick="addTag('{{ tag }}')">{{ tag }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn">
+      {{ "save changes" if card else "create card" }}
+    </button>
+    {% if card %}
+    <span class="muted small">slug: {{ card.slug }}</span>
+    {% endif %}
+  </div>
+</form>
+
+<script>
+function addTag(tag) {
+  const input = document.getElementById('tags');
+  const current = input.value.split(',').map(t => t.trim()).filter(Boolean);
+  if (!current.includes(tag)) {
+    current.push(tag);
+    input.value = current.join(', ');
+  }
+}
+</script>
+{% endblock %}

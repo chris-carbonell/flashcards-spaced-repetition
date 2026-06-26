@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}flashcards{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="logo">fc/</a>
+    <nav>
+      <a href="/">cards</a>
+      <a href="/review">review</a>
+      <a href="{{ repo_web_url }}" target="_blank" rel="noopener">repo</a>
+    </nav>
+    <form action="/sync" method="post" class="sync-form">
+      <button type="submit" class="btn-ghost" title="pull latest from git">↻ sync</button>
+    </form>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- delete confirmation modal -->
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal">
+      <p class="modal-message">delete this card?</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modal-cancel">cancel</button>
+        <button class="btn danger-btn" id="modal-confirm">delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // styled delete confirmation — intercepts any form with data-confirm
+    let pendingForm = null;
+
+    document.addEventListener('submit', function(e) {
+      const form = e.target;
+      if (!form.hasAttribute('data-confirm')) return;
+      e.preventDefault();
+      pendingForm = form;
+      document.getElementById('modal-backdrop').classList.remove('hidden');
+    });
+
+    document.getElementById('modal-cancel').addEventListener('click', function() {
+      pendingForm = null;
+      document.getElementById('modal-backdrop').classList.add('hidden');
+    });
+
+    document.getElementById('modal-confirm').addEventListener('click', function() {
+      if (pendingForm) {
+        pendingForm.removeAttribute('data-confirm');
+        pendingForm.submit();
+      }
+    });
+
+    // close on backdrop click
+    document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+      if (e.target === this) {
+        pendingForm = null;
+        this.classList.add('hidden');
+      }
+    });
+
+    // close on escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        pendingForm = null;
+        document.getElementById('modal-backdrop').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

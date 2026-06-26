@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ card.slug }} — flashcards{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="/">cards</a> / {{ card.slug }}
+  </div>
+  <div class="page-actions">
+    <a href="/cards/{{ card.slug }}/edit" class="btn-ghost">edit</a>
+    <form action="/cards/{{ card.slug }}/delete" method="post" data-confirm>
+      <button type="submit" class="btn-ghost danger">delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="card-view">
+  <div class="card-section">
+    <div class="section-label">question</div>
+    <div class="card-content">{{ question_html | safe }}</div>
+  </div>
+
+  <div class="card-divider">▼</div>
+
+  <div class="card-section">
+    <div class="section-label">answer</div>
+    <div class="card-content">{{ answer_html | safe }}</div>
+  </div>
+
+  <div class="card-tags">
+    {% for tag in card.tags %}
+    <a href="/?tag={{ tag }}" class="tag">{{ tag }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if review %}
+<div class="review-stats">
+  <div class="stat">
+    <span class="stat-label">next review</span>
+    <span class="stat-value">{{ review.next_review_at.strftime('%Y-%m-%d') }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">interval</span>
+    <span class="stat-value">{{ review.interval_days }}d</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">ease</span>
+    <span class="stat-value">{{ "%.2f"|format(review.ease_factor) }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">reps</span>
+    <span class="stat-value">{{ review.repetitions }}</span>
+  </div>
+</div>
+{% else %}
+<div class="review-stats muted">not yet reviewed</div>
+{% endif %}
+
+{% if logs %}
+<div class="review-history">
+  <h3>recent reviews</h3>
+  <table class="log-table">
+    <thead>
+      <tr><th>date</th><th>rating</th><th>interval after</th><th>ease after</th></tr>
+    </thead>
+    <tbody>
+      {% for entry in logs %}
+      <tr>
+        <td>{{ entry.reviewed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><span class="rating rating-{{ entry.rating }}">{{ "👍" if entry.rating >= 3 else "👎" }}</span></td>
+        <td>{{ entry.interval_days_after }}d</td>
+        <td>{{ "%.2f"|format(entry.ease_factor_after) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

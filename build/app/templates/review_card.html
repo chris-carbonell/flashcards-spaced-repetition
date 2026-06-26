@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}reviewing {{ tag }} — flashcards{% endblock %}
+
+{% block content %}
+<div class="review-session-header">
+  <a href="/review" class="btn-ghost small">← tags</a>
+  <span class="tag">{{ tag }}</span>
+  <span class="muted small">{{ due_count }} remaining</span>
+</div>
+
+<div class="review-card" id="review-card">
+  <div class="review-question">
+    <div class="section-label">question</div>
+    <div class="card-content">{{ question_html | safe }}</div>
+  </div>
+
+  <div class="reveal-section" id="reveal-section">
+    <button class="btn reveal-btn" id="reveal-btn" onclick="revealAnswer()">
+      show answer
+    </button>
+  </div>
+
+  <div class="review-answer hidden" id="answer-section">
+    <div class="card-divider">▼</div>
+    <div class="section-label">answer</div>
+    <div class="card-content">{{ answer_html | safe }}</div>
+  </div>
+
+  <!-- rating form — hidden until answer is revealed -->
+  <form action="/review/{{ card.slug }}" method="post" id="rating-form" class="hidden">
+    <input type="hidden" name="tag" value="{{ tag }}">
+    <input type="hidden" name="response_seconds" id="response-seconds" value="">
+
+    <div class="sticky-rating">
+      <div class="rating-label">did you get it?</div>
+      <div class="thumb-buttons">
+        <button type="submit" name="rating" value="1" class="thumb-btn thumb-no" title="didn't get it">
+          👎
+        </button>
+        <button type="submit" name="rating" value="4" class="thumb-btn thumb-yes" title="got it">
+          👍
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% if review %}
+<div class="review-meta muted small">
+  last reviewed: {{ review.last_reviewed_at.strftime('%Y-%m-%d') if review.last_reviewed_at else 'never' }}
+  · interval: {{ review.interval_days }}d
+  · ease: {{ "%.2f"|format(review.ease_factor) }}
+</div>
+{% endif %}
+
+<script>
+  const startTime = Date.now();
+
+  function revealAnswer() {
+    document.getElementById('reveal-section').classList.add('hidden');
+    document.getElementById('answer-section').classList.remove('hidden');
+    document.getElementById('rating-form').classList.remove('hidden');
+    const secs = Math.round((Date.now() - startTime) / 1000);
+    document.getElementById('response-seconds').value = secs;
+  }
+
+  // keyboard shortcuts: space to reveal, y/k for got it, n/j for didn't
+  document.addEventListener('keydown', function(e) {
+    const answerShown = !document.getElementById('answer-section').classList.contains('hidden');
+
+    if (e.key === ' ' && !answerShown) {
+      e.preventDefault();
+      revealAnswer();
+      return;
+    }
+
+    if (answerShown) {
+      if (['y', 'k'].includes(e.key)) {
+        document.querySelector('.thumb-yes').click();
+      } else if (['n', 'j'].includes(e.key)) {
+        document.querySelector('.thumb-no').click();
+      }
+    }
+  });
+</script>
+{% endblock %}
