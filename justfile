@@ -1,7 +1,7 @@
 # global variables
 project := "spaced-repetition"
 name := "spaced-repetition"
-version := "v1.0.0"
+version := "v1.0.1"
 registry := "zot.carbo"
 image_tag := project + "-" + name + ":" + version
 image_uri := registry + "/" + project + "/" + name + ":" + version
