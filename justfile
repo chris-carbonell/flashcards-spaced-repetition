@@ -2,7 +2,7 @@
 project := "spaced-repetition"
 name := "spaced-repetition"
 version := "v1.0.0"
-registry := "zot.home"
+registry := "zot.carbo"
 image_tag := project + "-" + name + ":" + version
 image_uri := registry + "/" + project + "/" + name + ":" + version
 
